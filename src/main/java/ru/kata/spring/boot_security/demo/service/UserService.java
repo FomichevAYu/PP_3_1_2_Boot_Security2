@@ -22,21 +22,19 @@ public class UserService implements UserDetailsService {
     @PersistenceContext
     private EntityManager em;
 
+    @Autowired
     UserRepository userRepository;
+    @Autowired
 
     RoleRepository roleRepository;
-    BCryptPasswordEncoder bCryptPasswordEncoder;
-    @Autowired
-    public UserService(EntityManager em, UserRepository userRepository, RoleRepository roleRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
-        this.em = em;
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+
+
+    public UserService() {
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username);
+        User user = userRepository.findByname(username);
 
         if (user == null) {
             throw new UsernameNotFoundException("User not found");
@@ -55,14 +53,14 @@ public class UserService implements UserDetailsService {
     }
 
     public boolean saveUser(User user) {
-        User userFromDB = userRepository.findByUsername(user.getUsername());
+        User userFromDB = userRepository.findByname(user.getUsername());
 
         if (userFromDB != null) {
             return false;
         }
 
         user.setRoles(Collections.singleton(new Role(1, "ROLE_USER")));
-        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        user.setPassword(user.getPassword());
         userRepository.save(user);
         return true;
     }
